@@ -9,22 +9,24 @@ typedef struct hash_t_elem
 {
     void * key;
     void * elem;
-    void * next;
+    struct hash_t_elem * next;
     int depth;
 }hash_t_elem;
 
 typedef struct hash_table
 {
-    int (* equals)(void *, void *);
-    int (* hashing)(void *);
+    short int (* equals)(void *, void *);
+    unsigned int (* hashing)(void *);
     int (* insert)(void *, void *, void *);
     void * (* remove)(void * ,void *);
     void * (* value_of)(void *, void *);
     void ** keys;
     hash_t_elem * values;
-    int count;
-    int max_depth;
+    unsigned int count;
+    unsigned int size;
+    unsigned int max_depth;
 }hash_table;
+
 
 
 void * get_elem(void * hash_t, void * param){
@@ -46,6 +48,7 @@ void expand_hash_table(void * hash_t){
     hash_t_elem * temp_tuples = _hash_t->values;
     hash_t_elem * new = malloc(sizeof(temp_tuples) * 2);
     _hash_t->values = new;
+    _hash_t->size *= 2;
     for (int i = 0; i < sizeof(temp_tuples) / sizeof(hash_t_elem); i++){
         hash_t_elem * current = &temp_tuples[i];
         while (current != NULL)
@@ -63,10 +66,8 @@ void expand_hash_table(void * hash_t){
 
 int add(void * hash_t, void * key, void * value){
     hash_table * _hash_t = (hash_table *)hash_t;
-    int index = _hash_t->hashing(key) % (sizeof(_hash_t->values) / sizeof(hash_t_elem));
-    if (index < 0){
-        return -1;
-    }
+    _hash_t->count++;
+    unsigned int index = _hash_t->hashing(key) % _hash_t->size;
     hash_t_elem * current = &_hash_t->values[index];
     if (current->depth == _hash_t->max_depth){
         expand_hash_table(hash_t);
@@ -100,7 +101,7 @@ int add(void * hash_t, void * key, void * value){
 
 void * del(void * hash_t, void * key){
     hash_table * _hash_t = (hash_table *) hash_t;
-    int index = _hash_t->hashing(key) % (sizeof(_hash_t->values) / sizeof(hash_t_elem));
+    unsigned int index = _hash_t->hashing(key) % _hash_t->size;
     if (index < 0){
         return NULL;
     }
@@ -130,7 +131,7 @@ void * del(void * hash_t, void * key){
     return ret;
 }
 
-hash_table * create_hash_table(int max_depth, int(* hash)(void *), int(* equals)(void *, void *)){
+hash_table * create_hash_table(int max_depth, unsigned int(* hash)(void *), short int(* equals)(void *, void *)){
     hash_table * hash_t = (hash_table *)malloc(sizeof(hash_table));
     hash_t->equals = equals;
     hash_t->hashing = hash;
@@ -143,5 +144,6 @@ hash_table * create_hash_table(int max_depth, int(* hash)(void *), int(* equals)
     hash_t->keys = keys;
     hash_t->count = 0;
     hash_t->max_depth = max_depth;
+    hash_t->size = 1;
     return hash_t;
 }
