@@ -16,8 +16,8 @@ typedef struct hash_t_elem
 typedef struct hash_table
 {
     short int (* equals)(void *, void *);
-    unsigned int (* hashing)(void *);
-    int (* insert)(void *, void *, void *);
+    long long (* hashing)(void *);
+    long long (* insert)(void *, void *, void *);
     void * (* remove)(void * ,void *);
     void * (* value_of)(void *, void *);
     void ** keys;
@@ -31,7 +31,10 @@ typedef struct hash_table
 
 void * get_elem(void * hash_t, void * param){
     hash_table * _hash_t = (hash_table *)hash_t;
-    int index = _hash_t->hashing(param);
+    long long index = _hash_t->hashing(param);
+    if (index < 0){
+        return NULL;
+    }
     hash_t_elem * current = &_hash_t->values[index];
     while (current != NULL)
     {
@@ -64,10 +67,13 @@ void expand_hash_table(void * hash_t){
     free(temp_tuples);
 }
 
-int add(void * hash_t, void * key, void * value){
+long long add(void * hash_t, void * key, void * value){
     hash_table * _hash_t = (hash_table *)hash_t;
+    long long index = _hash_t->hashing(key) % _hash_t->size;
+    if (index < 0){
+        return -1;
+    }
     _hash_t->count++;
-    unsigned int index = _hash_t->hashing(key) % _hash_t->size;
     hash_t_elem * current = &_hash_t->values[index];
     if (current->depth == _hash_t->max_depth){
         expand_hash_table(hash_t);
@@ -101,7 +107,7 @@ int add(void * hash_t, void * key, void * value){
 
 void * del(void * hash_t, void * key){
     hash_table * _hash_t = (hash_table *) hash_t;
-    unsigned int index = _hash_t->hashing(key) % _hash_t->size;
+    long long index = _hash_t->hashing(key) % _hash_t->size;
     if (index < 0){
         return NULL;
     }
@@ -131,7 +137,7 @@ void * del(void * hash_t, void * key){
     return ret;
 }
 
-hash_table * create_hash_table(int max_depth, unsigned int(* hash)(void *), short int(* equals)(void *, void *)){
+hash_table * create_hash_table(int max_depth, long long(* hash)(void *), short int(* equals)(void *, void *)){
     hash_table * hash_t = (hash_table *)malloc(sizeof(hash_table));
     hash_t->equals = equals;
     hash_t->hashing = hash;

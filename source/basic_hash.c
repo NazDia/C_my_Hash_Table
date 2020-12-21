@@ -1,43 +1,44 @@
-#include<string.h>
+#include <string.h>
+#include <math.h>
 
 unsigned int hash_float(void * param){
     float number = *(float *)param;
     unsigned int ui;
     memcpy(&ui, &number, sizeof(float));
-    return (ui >> 12) * 31;
+    return (ui >> 12);
 }
 
-unsigned int hash_int_like(void * param){
+long long hash_int_like(void * param){
     unsigned int number = *(unsigned int *)param;
-    return 31 * number;
+    return number;
 }
 
 //Only supports Higher endian and lower endian
-unsigned int hash_char(void * param){
+long long hash_char(void * param){
     char ch = *(char *)param;
     if ((unsigned int)('\00' + '\00' + '\00' + '\01') == 1){
-        return 31 * (unsigned int)('\00' + '\00' + '\00' + ch); //Little endian case
+        return (unsigned int)('\00' + '\00' + '\00' + ch); //Little endian case
     }
     else{
-        return 31 * (unsigned int)(ch + '\00' + '\00' + '\00'); //Higher endian case
+        return (unsigned int)(ch + '\00' + '\00' + '\00'); //Higher endian case
     }
 }
 
-unsigned int hash_string(void * param){
+long long hash_string(void * param){
     char * string = *(char **)param;
-    unsigned int ret = 0;
+    long long ret = 0;
     for (int i = 0; i < sizeof(string) / sizeof(char); i++){
-        ret += hash_char(&string[i]);
+        ret += hash_char(&string[i]) * (long long)pow(31, i);
     }
     return ret;
 }
 
-unsigned int hash_ref(void * param){
+long long hash_ref(void * param){
     unsigned int ref_pos = (unsigned int)(param) >> 3;
     return ref_pos;
 }
 
-unsigned int mixed_hash(void * param){
+long long mixed_hash(void * param){
     int * sub_param_i = (int *)param;
     if (sub_param_i != NULL){
         return hash_int_like(sub_param_i);

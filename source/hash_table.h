@@ -11,8 +11,8 @@ typedef struct hash_t_elem{
 typedef struct hash_table
 {
     short int (* equals)(void *, void *);
-    unsigned int (* hashing)(void *);
-    int (* insert)(void *, void *, void *);
+    long long (* hashing)(void *);
+    long long (* insert)(void *, void *, void *);
     void * (* remove)(void * ,void *);
     void * (* value_of)(void *, void *);
     void ** keys;
