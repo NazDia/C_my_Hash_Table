@@ -12,13 +12,14 @@ unsigned int hash_int_like(void * param){
     return 31 * number;
 }
 
+//Only supports Higher endian and lower endian
 unsigned int hash_char(void * param){
     char ch = *(char *)param;
     if ((unsigned int)('\00' + '\00' + '\00' + '\01') == 1){
-        return 31 * (unsigned int)('\00' + '\00' + '\00' + ch);
+        return 31 * (unsigned int)('\00' + '\00' + '\00' + ch); //Little endian case
     }
     else{
-        return 31 * (unsigned int)(ch + '\00' + '\00' + '\00');
+        return 31 * (unsigned int)(ch + '\00' + '\00' + '\00'); //Higher endian case
     }
 }
 

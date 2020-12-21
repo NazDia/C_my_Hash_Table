@@ -22,6 +22,6 @@ typedef struct hash_table
     unsigned int max_depth;
 }hash_table;
 
-hash_table * create_hash_table(int max_depth, unsigned int (* )(void *), short int (* )(void *, void *));
+extern hash_table * create_hash_table(int max_depth, unsigned int (* )(void *), short int (* )(void *, void *));
 
 #endif
