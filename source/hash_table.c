@@ -119,7 +119,10 @@ void * del(void * hash_t, void * key){
         prev = current;
         current = (hash_t_elem *)current->next;
     }
-    if (prev == NULL){
+    if (current == NULL){
+        return NULL;
+    }
+    else if (prev == NULL){
         _hash_t->values[index] = *(hash_t_elem *)current->next;
     }
     else
